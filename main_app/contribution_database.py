@@ -103,9 +103,9 @@ def get_success_contribution_message(contribution: SMSContribution, otp: int):
         f"Your contribution was saved with the following details: \n"
         f"Station ID: {contribution.station.id}\n"
         f"Water Height: {contribution.water_height} ft\n\n"
-        f"If the values seem incorrect, please send another message in format: \n"
-        f"`update OTP STATION ID WATER_HEIGHT`\n"
-        f"Your OTP is {otp}. NOTE: OTP is valid for 24 hours."
+        f"If the values seem incorrect, please send another message in \nformat: "
+        f"`UPDATE CODE# STATION_ID WATER_HEIGHT`\n"
+        f"Your code# is {otp}"
     )
 
 
@@ -115,9 +115,9 @@ def get_update_contribution_message(contribution, otp):
         f"Your contribution was update with the following details: \n"
         f"Station ID: {contribution.station.id}\n"
         f"Water Height: {contribution.water_height} ft\n\n"
-        f"If the values seem incorrect, please send another message in format: \n"
-        f"`update OTP STATION ID WATER_HEIGHT`\n"
-        f"Your OTP is {otp}. NOTE: OTP is valid for 24 hours after you first submitted your contribution."
+        f"If the values seem incorrect, please send another message in \nformat: "
+        f"`UPDATE CODE# STATION_ID WATER_HEIGHT`\n"
+        f"Your code# is {otp}"
     )
 
 
