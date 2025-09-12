@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 
-# from crowd_hydrology.secrets_handler import DotEnvSecretsHandler
+import django_rq
+from twilio.rest import Client as TwilioClient
+
 from crowd_hydrology.secrets_handler import YamlEnvSecretsHandler
 
 # Environment Variables Handler
@@ -22,10 +24,14 @@ __env = YamlEnvSecretsHandler(yaml_file_path="secrets.yaml")
 # TEST ACCOUNT CREDENTIALS
 TWILIO_ACCOUNT_SID = __env.get_secret("TWILIO_ACCOUNT_SID")
 TWILIO_AUTH_TOKEN = __env.get_secret("TWILIO_AUTH_TOKEN")
+TWILIO_CLIENT = TwilioClient(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
 # Plotly Credentials
 PLOTLY_USERNAME = __env.get_secret("PLOTLY_USERNAME")
 PLOTLY_API_KEY = __env.get_secret("PLOTLY_API_KEY")
+
+GEMINI_API_KEY = __env.get_secret("GEMINI_API_KEY")
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -50,7 +56,7 @@ ALLOWED_HOSTS = (
         ".geology.buffalo.edu",
         ".buffalo.edu",
         "128.205.25.32",
-        "casumarzu.caset.buffalo.edu"
+        "casumarzu.caset.buffalo.edu",
     ]
     if not DEBUG
     else ["*"]
@@ -68,6 +74,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "main_app",
     "localflavor",
+    "django_rq",
 ]
 
 MIDDLEWARE = [
@@ -78,7 +85,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware"
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "crowd_hydrology.urls"
@@ -150,8 +157,7 @@ CSRF_TRUSTED_ORIGINS = [
     "https://casumarzu.caset.buffalo.edu",
     "http://casumarzu.caset.buffalo.edu",
     "https://casumarzu.caset.buffalo.edu:8040",
-    "http://casumarzu.caset.buffalo.edu:8040"
-
+    "http://casumarzu.caset.buffalo.edu:8040",
 ]
 
 
@@ -181,3 +187,18 @@ STATIC_FILES = [
 
 MEDIA_ROOT = MEDIA_DIR
 MEDIA_URL = "/media/"
+
+
+# Redis and RQ settings
+RQ_QUEUES = {
+    "default": {
+        "HOST": "localhost",
+        "PORT": 6379,
+        "DB": 0,
+        "DEFAULT_TIMEOUT": 360,
+    },
+}
+
+queue = django_rq.get_queue("default")
+
+redis_conn = django_rq.get_connection()

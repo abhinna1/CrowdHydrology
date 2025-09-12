@@ -29,6 +29,14 @@ class AbstractSecretsHandler(ABC):
     # Database
     DB_NAME: str = field(init=False)
 
+    # Gemini
+    GEMINI_API_KEY: str = field(init=False)
+
+    # REDIS
+    CONTRIBUTION_OTP_TTL: str = field(
+        init=True, default=86400
+    )  # time to live for contribution OTP | default: 24 hrs
+
     def __init__(self):
         self._obtain_all_secrets()
 
