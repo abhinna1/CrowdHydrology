@@ -1,5 +1,6 @@
 from io import BytesIO
 
+import pandas as pd
 import requests
 from django.conf import settings
 from loguru import logger
@@ -17,6 +18,7 @@ from main_app.contribution_database import (
     save_invalid_contribution,
     save_valid_contribution,
 )
+from main_app.models import SMSContribution, Station
 from model.detection import ContributionImageDetector, GeminiClient
 from model.exceptions import (
     INVALID_GAUGE_READING_EXCEPTION,
@@ -149,3 +151,24 @@ def process_mms_image(
             body="An error occurred while processing your contribution. Please try again later.",
         )
         raise
+
+
+def generateStationCsvTask(path: str):
+    stations = Station.objects.all()
+
+    for station in stations:
+        contibutions = SMSContribution.objects.filter(station__id=station.id)
+        # create csv in format: Date and Time,Gage Height (ft),POSIX Stamp
+
+        station_data = [
+            {
+                "Date and Time": contribution.date_received,
+                "Gage Height": contribution.water_height,
+                "POSIX Stamp": int(contribution.date_received.timestamp()),
+            }
+            for contribution in contibutions
+        ]
+        df = pd.DataFrame(station_data)
+        csv_path = f"{path}/{station.id}_data.csv"
+        df.to_csv(csv_path, index=False)
+        logger.info(f"Station {station.id} CSV generated at {csv_path}")
