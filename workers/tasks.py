@@ -1,3 +1,4 @@
+import os
 from io import BytesIO
 
 import pandas as pd
@@ -154,6 +155,14 @@ def process_mms_image(
 
 
 def generateStationCsvTask(path: str):
+    # Ensure the directory exists
+    try:
+        os.makedirs(path, exist_ok=True)
+        logger.info(f"Output directory ensured at: {path}")
+    except Exception as e:
+        logger.error(f"Failed to create directory {path}: {e}")
+        raise
+
     stations = Station.objects.all()
 
     for station in stations:
